@@ -3,17 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Poker Cipher Lab｜手势纸牌解密</title>
+  <title>Poker Cipher Lab｜稳定手势版</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
   <style>
     :root{
-      --bg:#163b2a;
-      --bg2:#0f2b20;
-      --panel:rgba(0,0,0,0.45);
-      --panel2:rgba(255,255,255,0.10);
+      --bg:#143b2a;
+      --bg2:#0d251c;
+      --panel:rgba(0,0,0,0.48);
       --gold:rgba(255,215,0,0.96);
       --gold2:#ffe89a;
       --green:#27ae60;
@@ -21,18 +20,18 @@
       --grey:#7f8c8d;
       --red:#e74c3c;
       --purple:#8e44ad;
-      --ink:#162018;
+      --orange:#d35400;
       --cardW:150px;
       --cardH:215px;
-      --gap:24px;
+      --slotW:174px;
     }
 
     *{ box-sizing:border-box; }
 
     body{
       background:
-        radial-gradient(circle at 20% 10%, rgba(255,215,0,0.18), transparent 28%),
-        radial-gradient(circle at 80% 75%, rgba(142,68,173,0.18), transparent 30%),
+        radial-gradient(circle at 18% 10%, rgba(255,215,0,0.18), transparent 28%),
+        radial-gradient(circle at 82% 78%, rgba(142,68,173,0.18), transparent 32%),
         linear-gradient(135deg,var(--bg),var(--bg2));
       color:white;
       margin:0;
@@ -51,16 +50,16 @@
       top:0;
       left:0;
       width:100%;
-      z-index:400;
-      background:rgba(0,0,0,0.52);
-      padding:11px 14px;
+      z-index:500;
+      background:rgba(0,0,0,0.58);
+      padding:10px 14px;
       display:flex;
       flex-wrap:wrap;
-      gap:9px;
+      gap:8px;
       justify-content:center;
       align-items:center;
-      backdrop-filter: blur(8px);
-      border-bottom:1px solid rgba(255,255,255,0.15);
+      backdrop-filter:blur(8px);
+      border-bottom:1px solid rgba(255,255,255,0.14);
     }
 
     .pill{
@@ -81,40 +80,40 @@
       font-weight:800;
       color:white;
       background:var(--blue);
-      transition: transform .15s ease, filter .15s ease;
+      transition:transform .15s ease, filter .15s ease;
     }
     button:hover{ transform:translateY(-1px); filter:brightness(1.08); }
     button.secondary{ background:var(--grey); }
     button.success{ background:var(--green); }
-    button.warn{ background:#d35400; }
+    button.warn{ background:var(--orange); }
     button.purple{ background:var(--purple); }
-    button:disabled{ opacity:0.55; cursor:not-allowed; }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
 
     #title-card{
       position:fixed;
       top:76px;
       left:24px;
-      z-index:120;
-      width:330px;
-      padding:18px 18px 16px;
+      z-index:130;
+      width:345px;
+      padding:18px;
       border-radius:22px;
-      background:rgba(0,0,0,0.38);
+      background:rgba(0,0,0,0.40);
       border:1px solid rgba(255,255,255,0.18);
-      box-shadow:0 18px 40px rgba(0,0,0,0.25);
-      backdrop-filter: blur(8px);
+      box-shadow:0 18px 42px rgba(0,0,0,0.25);
+      backdrop-filter:blur(8px);
     }
     #title-card h1{
       margin:0;
-      font-size:1.8rem;
+      font-size:1.9rem;
       line-height:1.08;
       color:var(--gold);
-      text-shadow:0 0 14px rgba(255,215,0,0.25);
+      text-shadow:0 0 14px rgba(255,215,0,0.24);
     }
     #title-card p{
       margin:10px 0 0;
-      color:rgba(255,255,255,0.86);
+      color:rgba(255,255,255,0.88);
       line-height:1.55;
-      font-size:0.95rem;
+      font-size:0.94rem;
     }
 
     #gesture-help{
@@ -124,14 +123,14 @@
     }
     .gesture-line{
       display:grid;
-      grid-template-columns:72px 1fr;
+      grid-template-columns:78px 1fr;
       gap:8px;
       align-items:center;
       padding:8px 9px;
       border-radius:12px;
       background:rgba(255,255,255,0.08);
       border:1px solid rgba(255,255,255,0.12);
-      font-size:0.86rem;
+      font-size:0.84rem;
     }
     .gesture-line strong{ color:var(--gold2); }
 
@@ -139,15 +138,15 @@
       position:fixed;
       top:76px;
       right:24px;
-      z-index:120;
-      width:360px;
-      min-height:250px;
+      z-index:130;
+      width:375px;
+      min-height:260px;
       padding:18px;
       border-radius:22px;
-      background:rgba(0,0,0,0.38);
+      background:rgba(0,0,0,0.40);
       border:1px solid rgba(255,255,255,0.18);
-      box-shadow:0 18px 40px rgba(0,0,0,0.25);
-      backdrop-filter: blur(8px);
+      box-shadow:0 18px 42px rgba(0,0,0,0.25);
+      backdrop-filter:blur(8px);
     }
     #clue-panel h2{
       margin:0 0 10px;
@@ -155,7 +154,7 @@
       font-size:1.35rem;
     }
     #selected-info{
-      color:rgba(255,255,255,0.9);
+      color:rgba(255,255,255,0.92);
       margin-bottom:10px;
       font-weight:800;
     }
@@ -165,7 +164,7 @@
       border-radius:16px;
       padding:14px;
       line-height:1.65;
-      min-height:112px;
+      min-height:116px;
       color:rgba(255,255,255,0.92);
     }
     #order-preview{
@@ -196,33 +195,43 @@
     #cursor{
       width:18px;
       height:18px;
-      background:rgba(255,215,0,0.68);
+      background:rgba(255,215,0,0.72);
       border-radius:50%;
       position:absolute;
       pointer-events:none;
-      z-index:350;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 16px rgba(255,215,0,0.38);
-      opacity:0.9;
+      z-index:430;
+      transform:translate(-50%, -50%);
+      box-shadow:0 0 16px rgba(255,215,0,0.38);
+      opacity:.9;
     }
-    #cursor.selecting{
-      width:24px;
-      height:24px;
-      background:rgba(142,68,173,0.85);
-      box-shadow: 0 0 22px rgba(142,68,173,0.65);
+    #cursor.pointing{
+      background:rgba(255,215,0,0.9);
+      box-shadow:0 0 22px rgba(255,215,0,0.55);
+    }
+    #cursor.pinching{
+      width:25px;
+      height:25px;
+      background:rgba(142,68,173,0.9);
+      box-shadow:0 0 24px rgba(142,68,173,0.65);
     }
     #cursor.flipping{
       width:28px;
       height:28px;
-      background:rgba(39,174,96,0.82);
-      box-shadow: 0 0 22px rgba(39,174,96,0.62);
+      background:rgba(39,174,96,0.88);
+      box-shadow:0 0 24px rgba(39,174,96,0.66);
+    }
+    #cursor.confirming{
+      width:31px;
+      height:31px;
+      background:rgba(255,215,0,0.95);
+      box-shadow:0 0 30px rgba(255,215,0,0.78);
     }
 
     #table-line{
       position:absolute;
       left:50%;
       top:58%;
-      width:min(980px,92vw);
+      width:min(960px,92vw);
       height:8px;
       border-radius:999px;
       transform:translateX(-50%);
@@ -231,39 +240,80 @@
       z-index:1;
     }
 
+    #confirm-zone{
+      position:fixed;
+      left:50%;
+      bottom:36px;
+      transform:translateX(-50%);
+      z-index:160;
+      width:min(560px, 58vw);
+      min-height:74px;
+      border-radius:22px;
+      border:2px dashed rgba(255,215,0,0.65);
+      background:rgba(255,215,0,0.10);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:rgba(255,255,255,0.90);
+      font-weight:900;
+      letter-spacing:.2px;
+      box-shadow:0 14px 35px rgba(0,0,0,0.25);
+      backdrop-filter:blur(6px);
+      transition:.18s ease;
+    }
+    #confirm-zone.active{
+      background:rgba(255,215,0,0.22);
+      border-color:rgba(255,215,0,1);
+      box-shadow:0 0 35px rgba(255,215,0,0.28), 0 14px 35px rgba(0,0,0,0.25);
+      transform:translateX(-50%) scale(1.03);
+    }
+    #confirm-zone small{
+      display:block;
+      margin-top:3px;
+      opacity:.75;
+      font-weight:700;
+      font-size:.78rem;
+    }
+
     .poker-card{
       width:var(--cardW);
       height:var(--cardH);
       position:absolute;
       z-index:10;
       transition:
-        left 0.34s cubic-bezier(0.2,0.8,0.2,1),
-        top 0.34s cubic-bezier(0.2,0.8,0.2,1),
-        transform 0.34s cubic-bezier(0.2,0.8,0.2,1),
-        box-shadow 0.2s ease;
+        left .34s cubic-bezier(0.2,0.8,0.2,1),
+        top .34s cubic-bezier(0.2,0.8,0.2,1),
+        transform .34s cubic-bezier(0.2,0.8,0.2,1),
+        box-shadow .2s ease;
       user-select:none;
       cursor:pointer;
       perspective:900px;
       pointer-events:auto;
     }
-
     .poker-card.selected{
       transform:translateY(-18px) scale(1.06);
-      z-index:110;
+      z-index:120;
       filter:brightness(1.04);
     }
-
+    .poker-card.hovering:not(.selected){
+      transform:translateY(-10px) scale(1.03);
+      z-index:90;
+    }
     .poker-card.selected .card-inner{
       box-shadow:
         0 0 0 5px rgba(255,215,0,0.95),
         0 18px 42px rgba(0,0,0,0.50),
         0 0 22px rgba(255,215,0,0.25);
     }
-
-    .poker-card.shuffling{
-      transition: all 0.45s cubic-bezier(0.2,0.8,0.2,1) !important;
+    .poker-card.hovering .card-inner{
+      box-shadow:
+        0 0 0 3px rgba(255,255,255,0.40),
+        0 12px 32px rgba(0,0,0,0.42);
     }
-
+    .poker-card.shuffling{
+      transition:all .45s cubic-bezier(0.2,0.8,0.2,1) !important;
+    }
     .card-inner{
       position:relative;
       width:100%;
@@ -273,11 +323,7 @@
       transition:transform .46s cubic-bezier(0.2,0.8,0.2,1), box-shadow .2s ease;
       box-shadow:0 8px 22px rgba(0,0,0,0.34);
     }
-
-    .poker-card.flipped .card-inner{
-      transform:rotateY(180deg);
-    }
-
+    .poker-card.flipped .card-inner{ transform:rotateY(180deg); }
     .card-face{
       position:absolute;
       inset:0;
@@ -285,7 +331,6 @@
       overflow:hidden;
       backface-visibility:hidden;
     }
-
     .card-back{
       background:
         radial-gradient(circle at 28% 18%, rgba(255,255,255,0.18), transparent 22%),
@@ -298,7 +343,6 @@
       font-size:2.6rem;
       font-weight:900;
     }
-
     .card-back::before{
       content:"";
       position:absolute;
@@ -310,11 +354,10 @@
       content:"CIPHER";
       position:absolute;
       bottom:22px;
-      font-size:0.72rem;
+      font-size:.72rem;
       letter-spacing:2px;
-      opacity:0.65;
+      opacity:.65;
     }
-
     .card-front{
       background:#fffdf4;
       color:#1f2933;
@@ -325,32 +368,28 @@
       grid-template-rows:auto 1fr auto;
       text-align:center;
     }
-
     .corner{
       display:flex;
       justify-content:space-between;
       font-size:1.05rem;
       font-weight:900;
     }
-
     .big-suit{
       align-self:center;
       font-size:4.1rem;
       line-height:1;
       font-weight:900;
     }
-
     .card-clue{
       align-self:end;
-      font-size:0.78rem;
+      font-size:.78rem;
       line-height:1.25;
       font-weight:800;
       color:#3b4652;
       padding:7px 6px;
       border-radius:10px;
-      background:rgba(0,0,0,0.06);
+      background:rgba(0,0,0,.06);
     }
-
     .red{ color:var(--red); }
     .black{ color:#111; }
 
@@ -360,9 +399,9 @@
       display:none;
       align-items:center;
       justify-content:center;
-      z-index:700;
-      background:rgba(0,0,0,0.46);
-      backdrop-filter: blur(8px);
+      z-index:800;
+      background:rgba(0,0,0,0.48);
+      backdrop-filter:blur(8px);
     }
     #win-card{
       position:relative;
@@ -371,9 +410,9 @@
       border-radius:24px;
       padding:24px 28px;
       text-align:center;
-      width:min(620px, 92vw);
+      width:min(640px,92vw);
       box-shadow:0 0 48px rgba(255,215,0,0.30);
-      animation: popIn 260ms ease-out;
+      animation:popIn 260ms ease-out;
       overflow:hidden;
     }
     #win-title{
@@ -414,10 +453,10 @@
     #toast{
       position:fixed;
       left:50%;
-      bottom:24px;
-      transform:translateX(-50%) translateY(90px);
+      bottom:125px;
+      transform:translateX(-50%) translateY(80px);
       opacity:0;
-      z-index:620;
+      z-index:730;
       padding:12px 18px;
       border-radius:999px;
       background:#fff;
@@ -431,9 +470,9 @@
       opacity:1;
     }
 
-    @media (max-width:900px){
-      :root{ --cardW:110px; --cardH:160px; --gap:10px; }
-      #title-card, #clue-panel{
+    @media(max-width:900px){
+      :root{ --cardW:108px; --cardH:158px; --slotW:118px; }
+      #title-card,#clue-panel{
         position:static;
         width:calc(100vw - 24px);
         margin:10px 12px;
@@ -441,7 +480,8 @@
       #title-card{ margin-top:72px; }
       #clue-panel{ min-height:auto; }
       #status-bar{ justify-content:flex-start; overflow-x:auto; flex-wrap:nowrap; }
-      .card-clue{ font-size:.62rem; }
+      #confirm-zone{ width:calc(100vw - 30px); bottom:16px; }
+      .card-clue{ font-size:.61rem; }
       .big-suit{ font-size:3.2rem; }
     }
   </style>
@@ -449,10 +489,10 @@
 
 <body>
   <div id="status-bar">
-    <span class="pill">🎯 目标：翻开线索牌，滑动排列正确顺序</span>
-    <span class="pill">选中 <b>捏合/点击</b></span>
-    <span class="pill">翻牌 <b>✌️ / F</b></span>
-    <span class="pill">滑动 <b>左右挥手 / ← →</b></span>
+    <span class="pill">🎯 目标：翻线索牌 → 滑动排序 → 手掌放到确认区</span>
+    <span class="pill">选牌 <b>☝️ 指向停留</b></span>
+    <span class="pill">翻牌 <b>✌️ 停留</b></span>
+    <span class="pill">滑动 <b>👌 捏合左右移动</b></span>
     <button id="shuffle-btn" class="warn">重新洗牌</button>
     <button id="flip-btn" class="purple">翻开/盖回</button>
     <button id="check-btn" class="success">检查答案</button>
@@ -467,20 +507,21 @@
     <section id="title-card">
       <h1>Poker Cipher Lab</h1>
       <p>
-        AI 实验室的门被一组扑克牌密码锁住。每张牌背后都有一句线索。
-        你需要翻开纸牌，理解线索，并用滑动手势调整顺序。
+        这版把动作分开：指向用于选牌，✌️ 用于翻牌，👌 捏合后左右移动用于交换。
+        最后把张开的手掌放到下方确认区完成解密。
       </p>
       <div id="gesture-help">
-        <div class="gesture-line"><strong>选取</strong><span>捏合食指与拇指，或直接点击纸牌</span></div>
-        <div class="gesture-line"><strong>翻牌</strong><span>做 ✌️ 手势，或按 F / 点击按钮</span></div>
-        <div class="gesture-line"><strong>滑动</strong><span>选中后左右挥手，或按 ← →</span></div>
+        <div class="gesture-line"><strong>选取</strong><span>☝️ 食指指向纸牌并停留 0.6 秒</span></div>
+        <div class="gesture-line"><strong>翻牌</strong><span>✌️ 两指停留 0.6 秒，只翻当前选中牌</span></div>
+        <div class="gesture-line"><strong>滑动</strong><span>👌 捏合后向左/右移动，和相邻牌交换</span></div>
+        <div class="gesture-line"><strong>确认</strong><span>🖐️ 张开手掌放到下方确认区 0.8 秒</span></div>
       </div>
     </section>
 
     <section id="clue-panel">
       <h2>当前线索</h2>
       <div id="selected-info">还没有选中纸牌</div>
-      <div id="clue-text">先选中一张牌，再翻开它查看隐藏线索。</div>
+      <div id="clue-text">先用食指指向一张牌并停留，选中后再翻开查看线索。</div>
       <div id="order-preview">
         <b>解密目标：</b><br>
         把 5 张牌排列成正确的钥匙顺序，打开实验室门。
@@ -488,6 +529,13 @@
     </section>
 
     <div id="table-line"></div>
+
+    <div id="confirm-zone">
+      <div>
+        🖐️ CONFIRM ZONE｜确认解密区
+        <small>张开手掌放在这里停留，或点击“检查答案”</small>
+      </div>
+    </div>
   </div>
 
   <div id="cursor"></div>
@@ -497,8 +545,8 @@
     <div id="win-card">
       <h2 id="win-title">✨ 解密成功！</h2>
       <p>
-        你已经根据每张牌的隐藏线索，把扑克牌排列成正确顺序。<br>
-        这就是一个结合 <b>纸牌排序、谜题推理、数组交换、手势识别</b> 的网页交互原型。
+        你已经根据隐藏线索，把扑克牌排列成正确顺序。<br>
+        这个原型展示了 <b>状态管理、数组交换、条件判断、手势识别与人机交互</b>。
       </p>
       <button id="win-close" class="success">继续试玩</button>
       <button id="win-new" class="warn">重新开始</button>
@@ -511,6 +559,7 @@
   const container = document.getElementById('game-container');
   const videoElement = document.getElementById('video-preview');
   const cursor = document.getElementById('cursor');
+  const confirmZone = document.getElementById('confirm-zone');
 
   const shuffleBtn = document.getElementById('shuffle-btn');
   const flipBtn = document.getElementById('flip-btn');
@@ -530,75 +579,34 @@
   const winClose = document.getElementById('win-close');
   const winNew = document.getElementById('win-new');
 
-  const CARD_WIDTH = 174;
+  const SLOT_WIDTH = 174;
   let cardsData = [];
   let cardElements = [];
   let selectedIdx = -1;
+  let hoverIdx = -1;
+  let hoverStart = 0;
   let moves = 0;
   let muted = false;
   let isShuffling = false;
   let isGameOver = false;
 
-  let lastPoint = null;
+  let pinchStart = null;
   let lastGestureTime = 0;
-  let lastPinchTime = 0;
-  let lastFlipTime = 0;
-  const GESTURE_COOLDOWN = 650;
-  const PINCH_COOLDOWN = 520;
-  const FLIP_COOLDOWN = 950;
-  const SWIPE_THRESHOLD_PX = 135;
+  let twoFingerStart = null;
+  let confirmStart = 0;
+
+  const SELECT_DWELL = 620;
+  const FLIP_DWELL = 620;
+  const CONFIRM_DWELL = 820;
+  const SWIPE_THRESHOLD_PX = 120;
+  const GESTURE_COOLDOWN = 720;
 
   const seed = [
-    {
-      id:"AS",
-      v:"A",
-      s:"♠",
-      c:"black",
-      order:1,
-      clue:"I am the first key.",
-      cn:"我是第一把钥匙。",
-      flipped:false
-    },
-    {
-      id:"2S",
-      v:"2",
-      s:"♠",
-      c:"black",
-      order:2,
-      clue:"I come after A, but before 5.",
-      cn:"我在 A 后面，但在 5 前面。",
-      flipped:false
-    },
-    {
-      id:"5C",
-      v:"5",
-      s:"♣",
-      c:"black",
-      order:3,
-      clue:"All red cards come after me.",
-      cn:"所有红色牌都在我后面。",
-      flipped:false
-    },
-    {
-      id:"7H",
-      v:"7",
-      s:"♥",
-      c:"red",
-      order:4,
-      clue:"I am after all black cards.",
-      cn:"我在所有黑色牌后面。",
-      flipped:false
-    },
-    {
-      id:"QD",
-      v:"Q",
-      s:"♦",
-      c:"red",
-      order:5,
-      clue:"I am the final lock.",
-      cn:"我是最后一道锁。",
-      flipped:false
-    }
+    { id:"AS", v:"A", s:"♠", c:"black", order:1, clue:"I am the first key.", cn:"我是第一把钥匙。", flipped:false },
+    { id:"2S", v:"2", s:"♠", c:"black", order:2, clue:"I come after A, but before 5.", cn:"我在 A 后面，但在 5 前面。", flipped:false },
+    { id:"5C", v:"5", s:"♣", c:"black", order:3, clue:"All red cards come after me.", cn:"所有红色牌都在我后面。", flipped:false },
+    { id:"7H", v:"7", s:"♥", c:"red", order:4, clue:"I am after all black cards.", cn:"我在所有黑色牌后面。", flipped:false },
+    { id:"QD", v:"Q", s:"♦", c:"red", order:5, clue:"I am the final lock.", cn:"我是最后一道锁。", flipped:false }
   ];
 
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -617,35 +625,13 @@
     osc.stop(audioCtx.currentTime + duration);
   }
 
-  function selectSound(){
-    sound(520,0.07,"triangle",0.07);
-    setTimeout(()=>sound(660,0.06,"triangle",0.045),55);
-  }
-
-  function flipSound(){
-    sound(240,0.06,"square",0.04);
-    setTimeout(()=>sound(760,0.12,"triangle",0.075),70);
-  }
-
-  function slideSound(){
-    sound(330,0.08,"sawtooth",0.045);
-    setTimeout(()=>sound(420,0.06,"triangle",0.035),70);
-  }
-
-  function wrongSound(){
-    sound(180,0.16,"sawtooth",0.07);
-    setTimeout(()=>sound(135,0.18,"sawtooth",0.05),100);
-  }
-
-  function shuffleSound(){
-    sound(190,0.07,"square",0.05);
-    setTimeout(()=>sound(260,0.08,"square",0.05),80);
-    setTimeout(()=>sound(330,0.10,"triangle",0.05),160);
-  }
-
-  function winChord(){
-    [523,659,784,1046].forEach((f,i)=>setTimeout(()=>sound(f,0.18,"triangle",0.09), i*95));
-  }
+  function selectSound(){ sound(520,0.07,"triangle",0.07); setTimeout(()=>sound(660,0.06,"triangle",0.045),55); }
+  function flipSound(){ sound(240,0.06,"square",0.04); setTimeout(()=>sound(760,0.12,"triangle",0.075),70); }
+  function slideSound(){ sound(330,0.08,"sawtooth",0.045); setTimeout(()=>sound(420,0.06,"triangle",0.035),70); }
+  function wrongSound(){ sound(180,0.16,"sawtooth",0.07); setTimeout(()=>sound(135,0.18,"sawtooth",0.05),100); }
+  function shuffleSound(){ sound(190,0.07,"square",0.05); setTimeout(()=>sound(260,0.08,"square",0.05),80); setTimeout(()=>sound(330,0.10,"triangle",0.05),160); }
+  function confirmSound(){ sound(700,0.08,"triangle",0.06); setTimeout(()=>sound(900,0.10,"triangle",0.06),80); }
+  function winChord(){ [523,659,784,1046].forEach((f,i)=>setTimeout(()=>sound(f,0.18,"triangle",0.09), i*95)); }
 
   function showToast(text){
     toast.textContent = text;
@@ -654,17 +640,9 @@
     showToast.timer = setTimeout(()=>toast.classList.remove('show'),900);
   }
 
-  function setGesture(text){
-    gesturePill.textContent = text;
-  }
-
-  function updateMoves(){
-    movePill.textContent = String(moves);
-  }
-
-  function cardName(card){
-    return `${card.v}${card.s}`;
-  }
+  function setGesture(text){ gesturePill.textContent = text; }
+  function updateMoves(){ movePill.textContent = String(moves); }
+  function cardName(card){ return `${card.v}${card.s}`; }
 
   function shuffleArray(arr){
     for(let i=arr.length-1;i>0;i--){
@@ -674,25 +652,24 @@
   }
 
   function baseLeft(){
-    const width = window.innerWidth;
-    const total = cardsData.length * CARD_WIDTH;
-    return Math.max(24, (width - total) / 2);
+    const total = cardsData.length * SLOT_WIDTH;
+    return Math.max(24, (window.innerWidth - total) / 2);
   }
-
-  function cardTop(){
-    return window.innerHeight * 0.50;
-  }
+  function cardTop(){ return window.innerHeight * 0.50; }
 
   function initDeck(){
     container.querySelectorAll('.poker-card').forEach(el=>el.remove());
     cardsData = seed.map(card=>({...card, flipped:false}));
     shuffleArray(cardsData);
     selectedIdx = -1;
+    hoverIdx = -1;
+    hoverStart = 0;
     moves = 0;
     isGameOver = false;
     updateMoves();
     hideWin();
     cardElements = [];
+
     cardsData.forEach((card, i)=>{
       const el = document.createElement('div');
       el.className = `poker-card ${card.c}`;
@@ -709,6 +686,7 @@
       container.appendChild(el);
       cardElements.push(el);
     });
+
     renderScene();
     updatePanel();
   }
@@ -719,9 +697,14 @@
 
     cardsData.forEach((card, i)=>{
       const el = cardElements[i];
-      el.className = `poker-card ${card.c} ${card.flipped ? "flipped" : ""} ${i === selectedIdx ? "selected" : ""}`;
+      el.className =
+        `poker-card ${card.c}` +
+        `${card.flipped ? " flipped" : ""}` +
+        `${i === selectedIdx ? " selected" : ""}` +
+        `${i === hoverIdx && i !== selectedIdx ? " hovering" : ""}`;
+
       el.dataset.index = String(i);
-      el.style.left = `${left0 + i * CARD_WIDTH}px`;
+      el.style.left = `${left0 + i * SLOT_WIDTH}px`;
       el.style.top = `${top0}px`;
       el.style.zIndex = String(i === selectedIdx ? 120 : 10 + i);
 
@@ -747,7 +730,7 @@
     if(selectedIdx < 0){
       selectedPill.textContent = "None";
       selectedInfo.textContent = "还没有选中纸牌";
-      clueText.textContent = "先选中一张牌，再翻开它查看隐藏线索。";
+      clueText.textContent = "先用食指指向一张牌并停留，选中后再翻开查看线索。";
       orderPreview.innerHTML = `<b>当前顺序：</b><br>${cardsData.map(c=>cardName(c)).join(" → ")}`;
       return;
     }
@@ -765,7 +748,7 @@
     } else {
       clueText.innerHTML = `
         这张牌还没有翻开。<br>
-        做 <b>✌️ 手势</b>，或按 <b>F</b>，查看隐藏线索。
+        做 <b>✌️ 两指停留</b>，或按 <b>F</b>，查看隐藏线索。
       `;
     }
 
@@ -774,6 +757,7 @@
 
   function selectCard(i){
     if(isShuffling || isGameOver) return;
+    if(selectedIdx === i) return;
     selectedIdx = i;
     selectSound();
     setGesture("Select");
@@ -827,20 +811,23 @@
   }
 
   function isSolved(){
-    return cardsData.every((card, index)=>card.order === index + 1);
+    return cardsData.every((card,index)=>card.order === index + 1);
   }
 
   function checkAnswer(){
     audioCtx.resume().catch(()=>{});
+    confirmSound();
     if(isSolved()){
-      showWin();
+      setTimeout(showWin, 150);
     } else {
-      wrongSound();
-      showToast("顺序还不对，再读一遍线索");
-      clueText.innerHTML = `
-        <b>还没有解开。</b><br>
-        试着先找出：谁是第一张？谁是最后一张？所有红色牌应该在谁后面？
-      `;
+      setTimeout(()=>{
+        wrongSound();
+        showToast("顺序还不对，再读一遍线索");
+        clueText.innerHTML = `
+          <b>还没有解开。</b><br>
+          试着先找出：谁是第一张？谁是最后一张？所有红色牌应该在谁后面？
+        `;
+      }, 150);
     }
   }
 
@@ -875,6 +862,7 @@
     isShuffling = true;
     hideWin();
     selectedIdx = -1;
+    hoverIdx = -1;
     shuffleBtn.disabled = true;
     flipBtn.disabled = true;
     checkBtn.disabled = true;
@@ -889,7 +877,7 @@
 
     cardElements.forEach((el,i)=>{
       el.classList.add('shuffling');
-      el.style.zIndex = String(70 + i);
+      el.style.zIndex = String(70+i);
       el.style.left = `${cx - 75 + (i-2)*3}px`;
       el.style.top = `${cy - 108 + (i-2)*2}px`;
       el.style.transform = `rotate(${Math.random()*12-6}deg) scale(1.02)`;
@@ -904,11 +892,9 @@
 
     await sleep(120);
 
-    cardElements.forEach((el,i)=>{
-      el.style.transform = "";
-    });
-
+    cardElements.forEach(el=>{ el.style.transform = ""; });
     renderScene();
+
     await sleep(420);
 
     cardElements.forEach(el=>el.classList.remove('shuffling'));
@@ -924,11 +910,15 @@
 
   function findCardAt(x,y){
     for(let i=cardElements.length-1;i>=0;i--){
-      const el = cardElements[i];
-      const r = el.getBoundingClientRect();
+      const r = cardElements[i].getBoundingClientRect();
       if(x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return i;
     }
     return -1;
+  }
+
+  function inConfirmZone(x,y){
+    const r = confirmZone.getBoundingClientRect();
+    return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
   }
 
   function distance(a,b){
@@ -939,10 +929,9 @@
     return lm[tip].y < lm[pip].y - 0.025;
   }
 
-  function detectHandGesture(hand){
+  function detectGesture(hand){
     const thumbTip = hand[4];
     const indexTip = hand[8];
-    const middleTip = hand[12];
 
     const indexExtended = fingerExtended(hand,8,6);
     const middleExtended = fingerExtended(hand,12,10);
@@ -950,82 +939,182 @@
     const pinkyExtended = fingerExtended(hand,20,18);
 
     const pinch = distance(thumbTip,indexTip) < 0.055;
+
+    // 单指：用于选取。必须只有食指明显伸出，减少和滑动误读。
+    const point = indexExtended && !middleExtended && !ringExtended && !pinkyExtended && !pinch;
+
+    // 两指：用于翻牌。要求食指和中指伸出，其他手指收回。
     const twoFinger = indexExtended && middleExtended && !ringExtended && !pinkyExtended && !pinch;
 
-    return {pinch, twoFinger, indexTip};
+    // 张开手掌：用于确认，且必须在确认区。
+    const openPalm = indexExtended && middleExtended && ringExtended && pinkyExtended && !pinch;
+
+    return {pinch, point, twoFinger, openPalm, indexTip};
+  }
+
+  function setCursorClass({point,pinch,twoFinger,openPalm}){
+    cursor.classList.toggle("pointing", point);
+    cursor.classList.toggle("pinching", pinch);
+    cursor.classList.toggle("flipping", twoFinger);
+    cursor.classList.toggle("confirming", openPalm);
+  }
+
+  function handlePointSelect(x,y,now){
+    const idx = findCardAt(x,y);
+
+    if(idx !== hoverIdx){
+      hoverIdx = idx;
+      hoverStart = now;
+      renderScene();
+      return;
+    }
+
+    if(idx !== -1 && now - hoverStart > SELECT_DWELL){
+      audioCtx.resume().catch(()=>{});
+      selectCard(idx);
+      hoverStart = now + 999999; // 防止停留时重复选中音效
+    }
+  }
+
+  function handleTwoFingerFlip(x,y,now){
+    if(selectedIdx < 0){
+      twoFingerStart = null;
+      return;
+    }
+
+    if(!twoFingerStart){
+      twoFingerStart = {x,y,time:now};
+      return;
+    }
+
+    const move = Math.hypot(x - twoFingerStart.x, y - twoFingerStart.y);
+    if(move > 55){
+      // 两指必须是“停留”，如果移动过大就重置，避免滑动时误翻牌
+      twoFingerStart = {x,y,time:now};
+      return;
+    }
+
+    if(now - twoFingerStart.time > FLIP_DWELL){
+      audioCtx.resume().catch(()=>{});
+      flipSelected();
+      twoFingerStart = null;
+      lastGestureTime = now;
+    }
+  }
+
+  function handlePinchSlide(x,y,now){
+    if(selectedIdx < 0){
+      pinchStart = null;
+      return;
+    }
+
+    if(!pinchStart){
+      pinchStart = {x,y,time:now};
+      setGesture("Move Ready");
+      return;
+    }
+
+    const dx = x - pinchStart.x;
+    const dy = y - pinchStart.y;
+
+    if(now - lastGestureTime > GESTURE_COOLDOWN && Math.abs(dx) > SWIPE_THRESHOLD_PX && Math.abs(dx) > Math.abs(dy) * 1.3){
+      audioCtx.resume().catch(()=>{});
+      slideSelected(dx < 0 ? -1 : 1);
+      pinchStart = {x,y,time:now};
+      lastGestureTime = now;
+    }
+  }
+
+  function handleConfirm(x,y,now){
+    if(inConfirmZone(x,y)){
+      confirmZone.classList.add("active");
+      if(confirmStart === 0){
+        confirmStart = now;
+        setGesture("Confirm Hold");
+        return;
+      }
+      if(now - confirmStart > CONFIRM_DWELL){
+        confirmStart = now + 999999;
+        checkAnswer();
+      }
+    } else {
+      confirmZone.classList.remove("active");
+      confirmStart = 0;
+    }
+  }
+
+  function resetGestureState(){
+    hoverIdx = -1;
+    hoverStart = 0;
+    pinchStart = null;
+    twoFingerStart = null;
+    confirmStart = 0;
+    confirmZone.classList.remove("active");
+    renderScene();
   }
 
   function onResults(results){
     if(isShuffling || isGameOver) return;
+
     if(!results.multiHandLandmarks?.length){
       cursor.style.opacity = "0.25";
-      lastPoint = null;
+      resetGestureState();
       return;
     }
 
     cursor.style.opacity = "0.95";
 
     const hand = results.multiHandLandmarks[0];
-    const gesture = detectHandGesture(hand);
-    const indexTip = gesture.indexTip;
+    const gesture = detectGesture(hand);
 
-    const x = (1 - indexTip.x) * window.innerWidth;
-    const y = indexTip.y * window.innerHeight;
+    const x = (1 - gesture.indexTip.x) * window.innerWidth;
+    const y = gesture.indexTip.y * window.innerHeight;
+    const now = Date.now();
 
     cursor.style.left = `${x}px`;
     cursor.style.top = `${y}px`;
-    cursor.classList.toggle("selecting", gesture.pinch);
-    cursor.classList.toggle("flipping", gesture.twoFinger);
+    setCursorClass(gesture);
 
-    const now = Date.now();
-
-    // 手势1：捏合选取
-    if(gesture.pinch && now - lastPinchTime > PINCH_COOLDOWN){
-      const idx = findCardAt(x,y);
-      if(idx !== -1){
-        audioCtx.resume().catch(()=>{});
-        selectCard(idx);
-        lastPinchTime = now;
-        lastPoint = {x,y,time:now};
-        return;
-      }
+    // 手势互斥优先级：确认区 > 捏合滑动 > 两指翻牌 > 单指选取
+    if(gesture.openPalm){
+      hoverIdx = -1;
+      pinchStart = null;
+      twoFingerStart = null;
+      handleConfirm(x,y,now);
+      return;
+    } else {
+      confirmZone.classList.remove("active");
+      confirmStart = 0;
     }
 
-    // 手势2：✌️ 翻牌
-    if(gesture.twoFinger && selectedIdx !== -1 && now - lastFlipTime > FLIP_COOLDOWN){
-      audioCtx.resume().catch(()=>{});
-      flipSelected();
-      lastFlipTime = now;
-      lastPoint = {x,y,time:now};
+    if(gesture.pinch){
+      hoverIdx = -1;
+      hoverStart = 0;
+      twoFingerStart = null;
+      handlePinchSlide(x,y,now);
+      return;
+    } else {
+      pinchStart = null;
+    }
+
+    if(gesture.twoFinger){
+      hoverIdx = -1;
+      hoverStart = 0;
+      handleTwoFingerFlip(x,y,now);
+      return;
+    } else {
+      twoFingerStart = null;
+    }
+
+    if(gesture.point){
+      handlePointSelect(x,y,now);
       return;
     }
 
-    // 手势3：左右滑动交换
-    if(selectedIdx !== -1 && !gesture.pinch && !gesture.twoFinger){
-      if(!lastPoint){
-        lastPoint = {x,y,time:now};
-        return;
-      }
-
-      const dx = x - lastPoint.x;
-      const dy = y - lastPoint.y;
-
-      if(now - lastGestureTime > GESTURE_COOLDOWN && Math.abs(dx) > SWIPE_THRESHOLD_PX && Math.abs(dx) > Math.abs(dy) * 1.25){
-        audioCtx.resume().catch(()=>{});
-        slideSelected(dx < 0 ? -1 : 1);
-        lastGestureTime = now;
-        lastPoint = {x,y,time:now};
-        return;
-      }
-
-      // 平滑更新基准点，避免一次动作连续触发
-      lastPoint = {
-        x: lastPoint.x * 0.85 + x * 0.15,
-        y: lastPoint.y * 0.85 + y * 0.15,
-        time:now
-      };
-    } else {
-      lastPoint = {x,y,time:now};
+    if(hoverIdx !== -1){
+      hoverIdx = -1;
+      hoverStart = 0;
+      renderScene();
     }
   }
 
@@ -1064,22 +1153,21 @@
 
   window.addEventListener('resize', renderScene);
 
-  // MediaPipe 初始化
   const hands = new Hands({
     locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
   });
   hands.setOptions({
-    maxNumHands: 1,
-    modelComplexity: 1,
-    minDetectionConfidence: 0.7,
-    minTrackingConfidence: 0.7
+    maxNumHands:1,
+    modelComplexity:1,
+    minDetectionConfidence:0.72,
+    minTrackingConfidence:0.72
   });
   hands.onResults(onResults);
 
   const camera = new Camera(videoElement, {
     onFrame: async () => await hands.send({ image: videoElement }),
-    width: 640,
-    height: 480
+    width:640,
+    height:480
   });
 
   camera.start().catch(err=>{
