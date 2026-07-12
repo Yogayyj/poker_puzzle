@@ -243,11 +243,11 @@
     #confirm-zone{
       position:fixed;
       left:50%;
-      bottom:36px;
+      bottom:150px;
       transform:translateX(-50%);
       z-index:160;
-      width:min(560px, 58vw);
-      min-height:74px;
+      width:min(680px, 68vw);
+      min-height:92px;
       border-radius:22px;
       border:2px dashed rgba(255,215,0,0.65);
       background:rgba(255,215,0,0.10);
@@ -453,7 +453,7 @@
     #toast{
       position:fixed;
       left:50%;
-      bottom:125px;
+      bottom:250px;
       transform:translateX(-50%) translateY(80px);
       opacity:0;
       z-index:730;
@@ -489,9 +489,9 @@
 
 <body>
   <div id="status-bar">
-    <span class="pill">🎯 目标：翻线索牌 → 滑动排序 → 手掌放到确认区</span>
+    <span class="pill">🎯 目标：翻线索牌 → 滑动排序 → 手掌放到中部确认区</span>
     <span class="pill">选牌 <b>☝️ 指向停留</b></span>
-    <span class="pill">翻牌 <b>✌️ 停留</b></span>
+    <span class="pill">翻牌 <b>✌️ 停留后放下</b></span>
     <span class="pill">滑动 <b>👌 捏合左右移动</b></span>
     <button id="shuffle-btn" class="warn">重新洗牌</button>
     <button id="flip-btn" class="purple">翻开/盖回</button>
@@ -512,9 +512,9 @@
       </p>
       <div id="gesture-help">
         <div class="gesture-line"><strong>选取</strong><span>☝️ 食指指向纸牌并停留 0.6 秒</span></div>
-        <div class="gesture-line"><strong>翻牌</strong><span>✌️ 两指停留 0.6 秒，只翻当前选中牌</span></div>
+        <div class="gesture-line"><strong>翻牌</strong><span>✌️ 两指停留 0.6 秒，触发后要放下再翻</span></div>
         <div class="gesture-line"><strong>滑动</strong><span>👌 捏合后向左/右移动，和相邻牌交换</span></div>
-        <div class="gesture-line"><strong>确认</strong><span>🖐️ 张开手掌放到下方确认区 0.8 秒</span></div>
+        <div class="gesture-line"><strong>确认</strong><span>🖐️ 张开手掌放到中部确认区 0.8 秒</span></div>
       </div>
     </section>
 
@@ -533,7 +533,7 @@
     <div id="confirm-zone">
       <div>
         🖐️ CONFIRM ZONE｜确认解密区
-        <small>张开手掌放在这里停留，或点击“检查答案”</small>
+        <small>确认区已上移：张开手掌放在这里停留，或点击“检查答案”</small>
       </div>
     </div>
   </div>
@@ -593,6 +593,7 @@
   let pinchStart = null;
   let lastGestureTime = 0;
   let twoFingerStart = null;
+  let twoFingerLocked = false;
   let confirmStart = 0;
 
   const SELECT_DWELL = 620;
@@ -982,8 +983,16 @@
       return;
     }
 
+    // 防止 ✌️ 手势一直停留时反复翻牌：
+    // 一次两指手势只允许触发一次，必须放下/换成其他手势后才会解锁。
+    if(twoFingerLocked){
+      setGesture("Flip Locked");
+      return;
+    }
+
     if(!twoFingerStart){
       twoFingerStart = {x,y,time:now};
+      setGesture("Flip Hold");
       return;
     }
 
@@ -997,8 +1006,10 @@
     if(now - twoFingerStart.time > FLIP_DWELL){
       audioCtx.resume().catch(()=>{});
       flipSelected();
+      twoFingerLocked = true;
       twoFingerStart = null;
       lastGestureTime = now;
+      showToast("已翻牌：放下 ✌️ 后可再次翻牌");
     }
   }
 
@@ -1048,6 +1059,7 @@
     hoverStart = 0;
     pinchStart = null;
     twoFingerStart = null;
+    twoFingerLocked = false;
     confirmStart = 0;
     confirmZone.classList.remove("active");
     renderScene();
@@ -1104,6 +1116,7 @@
       return;
     } else {
       twoFingerStart = null;
+      twoFingerLocked = false;
     }
 
     if(gesture.point){
